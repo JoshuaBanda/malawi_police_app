@@ -1,144 +1,118 @@
-package ui.homepage.reports
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FamilyRestroom
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.malawipoliceapp.ui.theme.White
 import com.example.malawipoliceapp.ui.theme.complementoryColor
 import com.example.malawipoliceapp.ui.theme.primaryColor
+import ui.TruncatedText
+import ui.reports.ReportBottomSheet
+import ui.reports.typesOfReports.GenderBasedViolenceReportScreen
+import ui.reports.typesOfReports.MinorAccident
 
 @Composable
-fun ReportBox(navController: NavController,title:String, navigateTo: String) {
+fun ReportBox(
+    navController: NavController,
+    title: String,
+    description: String = "Report minor incident...",
+    icon: ImageVector,
+    content: @Composable (NavController) -> Unit // composable lambda
+) {
+    // State to control the bottom sheet
+    var isSheetOpen by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
-            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .height(80.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         // Icon Box
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.2f)
-                .fillMaxHeight(1f),
+                .size(60.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(primaryColor.copy(alpha = 0.2f)),
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .padding(5.dp)
-                    .fillMaxWidth(0.8f)
-                    .fillMaxHeight(0.8f)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(complementoryColor.copy(alpha = 0.3f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.FamilyRestroom,
-                    contentDescription = "Report Accident",
-                    tint = primaryColor,
-                    modifier = Modifier.size(32.dp)
-                )
-            }
+            Icon(
+                imageVector = icon,
+                contentDescription = "Report Icon",
+                tint = primaryColor,
+                modifier = Modifier.size(32.dp)
+            )
         }
 
-        // Details Box
-        Box(
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Details + Button
+        Column(
             modifier = Modifier
-                .fillMaxWidth(1f)
-                .fillMaxHeight(1f)
-                .padding(start = 8.dp)
+                .fillMaxWidth()
+                .height(60.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
+            // Title
+            Text(
+                text = title,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 16.sp,
+                color = Color.Black
+            )
+
+            // Description + Button Row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Title
-                Text(
-                    text = title,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
-                    color = Color.Black
+                // Description text
+                TruncatedText(
+                    text = description,
+                    maxChar = 18,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
 
-                Row(
+                // Open button
+                Button(
+                    onClick = { isSheetOpen = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = White),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .width(80.dp)
+                        .height(36.dp)
+                        .shadow(2.dp, RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(16.dp))
                 ) {
-                    // Description
                     Text(
-                        text = "Report minor incident...",
-                        fontWeight = FontWeight.Light,
+                        text = "Open",
                         fontSize = 12.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.weight(1f)
+                        color = Color.Black
                     )
-
-                    // Open Button
-                    Box(
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(32.dp)
-                            .padding(start = 8.dp)
-                            .shadow(
-                                elevation = 2.dp,
-                                shape = RoundedCornerShape(16.dp),
-                                clip = false
-                            )
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(White)
-                            .clickable {
-                                navController.navigate(navigateTo)
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Open",
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 12.sp,
-                            color = Color.Black
-                        )
-                    }
                 }
             }
         }
     }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun Prev() {
-    ReportBox(
-        navController = rememberNavController(),
-        title = "minor accidents",
-        navigateTo = "report_screen" // Add your route here
-    )
+    // Bottom sheet - Pass the lambda to ReportBottomSheet
+    if (isSheetOpen) {
+        ReportBottomSheet(
+            navController = navController,
+            onDismiss = { isSheetOpen = false },
+            content = content // Pass the lambda here
+        )
+    }
 }

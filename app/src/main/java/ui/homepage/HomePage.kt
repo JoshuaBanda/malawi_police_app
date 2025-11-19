@@ -61,6 +61,7 @@ fun HomePage(navController: NavController) {
                 .fillMaxWidth(0.9f)
                 .height(55.dp)
                 .align(Alignment.BottomCenter)
+                .offset(y = (-20).dp)
                 .clip(RoundedCornerShape(25.dp))
                 .background(primaryColor)
                 .padding(vertical = 6.dp),
@@ -71,9 +72,13 @@ fun HomePage(navController: NavController) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .clickable {
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
                             scope.launch { bottomNavIndex = index }
                         }
+
                         .padding(vertical = 4.dp)
                 ) {
                     Icon(
@@ -82,11 +87,11 @@ fun HomePage(navController: NavController) {
                         tint = if (bottomNavIndex == index) White else White.copy(alpha = 0.4f)
                     )
                     AnimatedVisibility(visible = bottomNavIndex == index) {
-                        Text(
-                            text = item.label,
-                            color = White,
-                            fontSize = 10.sp
-                        )
+//                        Text(
+//                            text = item.label,
+//                            color = White,
+//                            fontSize = 10.sp
+//                        )
                     }
                 }
             }

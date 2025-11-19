@@ -8,7 +8,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FamilyRestroom
 import androidx.compose.material.icons.filled.FilePresent
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.ButtonDefaults
@@ -26,12 +25,14 @@ import com.example.malawipoliceapp.ui.theme.White
 import com.example.malawipoliceapp.ui.theme.primaryColor
 import androidx.compose.material3.Button
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 
 import com.example.malawipoliceapp.ui.theme.complementoryColor
+import ui.TruncatedText
 import ui.reports.ReportService
 
 @Composable
-fun ReportDetailsScreen(navController: NavController, report: ReportService,navigateTo:String) {
+fun ReportDetailsScreen(navController: NavController, report: ReportService,navigateTo:String,icon: ImageVector) {
     val title = report.title
     val description = report.description
     val eligibility = report.eligibility
@@ -47,25 +48,23 @@ fun ReportDetailsScreen(navController: NavController, report: ReportService,navi
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 🔹 Header Section
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp)
-                .background(primaryColor.copy(alpha = 0.1f)),
+                .height(150.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Left Icon Section
             Box(
                 modifier = Modifier
-                    .weight(0.3f)
-                    .fillMaxHeight()
+                    .fillMaxWidth(0.3f)
+                    .fillMaxHeight(0.7f)
                     .clip(RoundedCornerShape(5))
-                    .background(primaryColor),
+                    .background(complementoryColor/*.copy(alpha = 0.9f)*/),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.FamilyRestroom,
+                    imageVector =icon,
                     contentDescription = "Report Type Icon",
                     tint = White,
                     modifier = Modifier.size(60.dp)
@@ -122,7 +121,7 @@ fun ReportDetailsScreen(navController: NavController, report: ReportService,navi
             modifier = Modifier
                 .fillMaxWidth()
                 .border(
-                    BorderStroke(1.dp, Color.Black),
+                    BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f)),
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(16.dp)
@@ -196,7 +195,7 @@ fun ReportDetailsScreen(navController: NavController, report: ReportService,navi
                 modifier = Modifier
                     .fillMaxWidth()
                     .border(
-                        BorderStroke(1.dp, Color.Black),
+                        BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f)),
                         shape = RoundedCornerShape(8.dp)
                     )
                     .padding(16.dp)
@@ -308,19 +307,7 @@ fun ReportDetailsScreen(navController: NavController, report: ReportService,navi
     }
 }
 
-@Composable
-fun TruncatedText(
-    text: String,
-    maxChar: Int,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = if (text.length > maxChar) "${text.take(maxChar)} ..." else text,
-        modifier = modifier,
-        fontSize = 12.sp,
-        color = Color.Gray
-    )
-}
+
 
 //@Preview(showBackground = true)
 //@Composable

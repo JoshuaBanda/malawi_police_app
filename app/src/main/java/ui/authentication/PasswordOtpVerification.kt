@@ -3,6 +3,7 @@
 package ui.authentication
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -15,24 +16,21 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.malawipoliceapp.ui.theme.primaryColor
-import com.example.malawipoliceapp.ui.theme.Gray
-import com.example.malawipoliceapp.ui.theme.White
-import com.example.malawipoliceapp.ui.theme.MalawiPoliceAppTheme
+import com.example.malawipoliceapp.ui.theme.*
 
 @Composable
-fun PhoneNumberScreen(
-    navController: NavController
+fun PasswordOtpVerification(
+    navController: NavController,
+    phoneNumber: String
 ) {
-    var phoneNumber by remember { mutableStateOf("") }
-    var phoneError by remember { mutableStateOf(false) }
+    var otpCode by remember { mutableStateOf("") }
+    var otpError by remember { mutableStateOf(false) }
 
-    // Validate phone number
-    val isPhoneValid = phoneNumber.length <=10 && phoneNumber.all { it.isDigit() }
+    val isOtpValid = otpCode.length == 6 && otpCode.all { it.isDigit() }
 
     Column(
         modifier = Modifier
@@ -46,64 +44,68 @@ fun PhoneNumberScreen(
 
         // Title
         Text(
-            text = "What's your phone number",
+            text = "Enter OTP",
             color = White,
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Phone input field
+        // Info
+        Text(
+            text = "We sent a 6-digit code to +265 $phoneNumber",
+            color = White,
+            fontSize = 14.sp,
+            lineHeight = 18.sp
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // OTP Field
         OutlinedTextField(
-            value = phoneNumber,
+            value = otpCode,
             onValueChange = {
-                if (it.all(Char::isDigit) && it.length <= 15) {
-                    phoneNumber = it
-                    phoneError = false
-                } else if (it.isNotEmpty()) {
-                    phoneError = true
+                if (it.length <= 6 && it.all(Char::isDigit)) {
+                    otpCode = it
+                    otpError = false
                 }
+//                else if (it.isNotEmpty()) {
+//                    otpError = true
+//                }
             },
             placeholder = {
                 Text(
-                    "Enter phone number",
-                    color = Gray.copy(alpha = 0.7f),
-                    fontSize = 16.sp
-                )
-            },
-            prefix = {
-                Text(
-                    text = "+265 | ",
-                    color = if (phoneError) Color.Red else Color.White
+                    "Enter OTP",
+                    fontSize = 16.sp,
+                    color = Gray.copy(alpha = 0.7f)
                 )
             },
             singleLine = true,
-            isError = phoneError,
+            isError = otpError,
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Phone,
+                keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done
             ),
             colors = OutlinedTextFieldDefaults.colors(
-
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
                 focusedBorderColor = Color.White,
                 unfocusedBorderColor = Gray.copy(alpha = 0.5f),
-                errorBorderColor = Color.Red.copy(alpha = 0.5f),
-                cursorColor = Color.White
+                errorBorderColor = Color.White,
+                cursorColor = Color.White,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White
             )
         )
 
-        // Error message
-        if (phoneError) {
+        // Error
+        if (otpError) {
             Text(
-                text = "Phone number must be 10 digits",
-                color = Color.Red,
+                text = "OTP must be 6 digits",
+                color = Color.Red.copy(alpha = 0.5f),
                 fontSize = 12.sp,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -111,25 +113,17 @@ fun PhoneNumberScreen(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Info text
-        Text(
-            text = "We will send you an SMS to verify if it's really you",
-            color = White,
-            fontSize = 14.sp,
-            modifier = Modifier.padding(horizontal = 10.dp),
-            lineHeight = 18.sp
-        )
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        // Continue Button
+        // Verify Button
         Button(
             onClick = {
-                if (isPhoneValid) {
-                    navController.navigate("otp_verification/$phoneNumber")
+
+                if (isOtpValid) {
+                    navController.navigate("reset_password/$phoneNumber")
+                } else {
+                    otpError = true
                 }
             },
-            enabled = isPhoneValid,
+            enabled = isOtpValid,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -139,10 +133,13 @@ fun PhoneNumberScreen(
                 disabledContainerColor = White.copy(alpha = 0.3f),
                 contentColor = primaryColor,
                 disabledContentColor = primaryColor.copy(alpha = 0.5f)
-            )
+            ),
+            // ✅ Important: explicitly pass LocalIndication.current if needed
+            // This usually fixes the crash if a ripple/indication issue happens
+            interactionSource = remember { MutableInteractionSource() }
         ) {
             Text(
-                text = "Sign Up",
+                text = "Verify",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -150,25 +147,27 @@ fun PhoneNumberScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Length indicator
-        if (phoneNumber.isNotEmpty()) {
+        // Remaining digits indicator
+        if (otpCode.isNotEmpty()) {
             Text(
-                text = "${phoneNumber.length}/10",
+                text = "${otpCode.length}/6",
                 color = White.copy(alpha = 0.7f),
                 fontSize = 12.sp
             )
         }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        TextButton(
+            onClick = { /* resend OTP */ },
+            interactionSource = remember { MutableInteractionSource() } // Fix
+        ) {
+            Text(
+                text = "Resend OTP",
+                color = White,
+                fontSize = 14.sp
+            )
+        }
+
     }
 }
-
-//////////////////////////////////////////////////
-// PREVIEW
-//////////////////////////////////////////////////
-
-//@Preview(showBackground = true, showSystemUi = true)
-//@Composable
-//fun PhoneNumberScreenPreview() {
-//    MalawiPoliceAppTheme {
-//        PhoneNumberScreen(navController = rememberNavController())
-//    }
-//}

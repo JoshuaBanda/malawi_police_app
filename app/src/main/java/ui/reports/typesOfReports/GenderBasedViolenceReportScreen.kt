@@ -1,5 +1,7 @@
 package ui.reports.typesOfReports
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FamilyRestroom
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import ui.reports.ReportService
@@ -17,7 +19,8 @@ fun GenderBasedViolenceReportScreen(navController: NavController){
     ReportDetailsScreen(
         navController,
         report,
-        "gbv_report_form"
+        navigateTo = "gbv_report_form",
+        icon =  Icons.Default.FamilyRestroom,
     )
 
 }

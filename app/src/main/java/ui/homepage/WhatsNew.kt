@@ -20,6 +20,7 @@ import com.example.malawipoliceapp.R
 import com.example.malawipoliceapp.ui.theme.Black
 import ui.homepage.news.PostImage
 
+
 @Composable
 fun WhatsNew(navController: NavController) {
 
@@ -30,21 +31,18 @@ fun WhatsNew(navController: NavController) {
     )
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+        contentPadding = PaddingValues(vertical = 24.dp)
     ) {
-        // Top Recommendations section
-//        item {
-//            TopRecommendations()
-//            Spacer(modifier = Modifier.height(12.dp)
-//            )
-//        }
+        // Uncomment if TopRecommendations is needed
+        // item {
+        //     TopRecommendations()
+        // }
 
-        // Posts list
         items(posts) { photo ->
             Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 PostImage(
@@ -52,90 +50,84 @@ fun WhatsNew(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
                         .height(430.dp)
-                        .padding(vertical = 36.dp)
                 )
             }
         }
     }
 }
 
-//@Composable
-//fun TopRecommendations() {
-//    Box(modifier=Modifier.height(50.dp).fillMaxWidth(),
-//        contentAlignment = Alignment.BottomStart){
-//        Text(
-//            text="Top recommendations",
-//            fontSize = 20.sp,
-//            fontWeight = FontWeight.SemiBold,
-//            color = Black,
-//            modifier = Modifier
-//                .padding(horizontal = 16.dp)
-//        )
-//    }
-//    Box(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(300.dp)
-//            .padding(20.dp)
-//    ) {
-//        Row(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(300.dp),
-//            verticalAlignment = Alignment.CenterVertically,
-//            horizontalArrangement = Arrangement.SpaceBetween
-//        ) {
-//            // Left image section (covers box completely)
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth(0.5f)
-//                    .height(280.dp)
-//                    .clip(RoundedCornerShape(20.dp))
-//            ) {
-//                Image(
-//                    painter = painterResource(R.drawable.welcome_case_tracking),
-//                    contentDescription = "Recommendation Image",
-//                    contentScale = ContentScale.Crop,
-//                    modifier = Modifier.fillMaxSize()
-//                )
-//            }
-//
-//            Spacer(Modifier.width(12.dp))
-//
-//            // Right side: two stacked small images
-//            Column(
-//                verticalArrangement = Arrangement.SpaceEvenly,
-//                horizontalAlignment = Alignment.CenterHorizontally,
-//                modifier = Modifier
-//                    .fillMaxWidth(1f)
-//                    .height(300.dp)
-//            ) {
-//                Image(
-//                    painter = painterResource(R.drawable.picture1),
-//                    contentDescription = "Report police incident",
-//                    contentScale = ContentScale.Crop,
-//                    modifier = Modifier
-//                        .fillMaxWidth(0.9f)
-//                        .fillMaxHeight(0.5f)
-//                        .clip(RoundedCornerShape(20.dp))
-//                )
-//
-//                Image(
-//                    painter = painterResource(R.drawable.picture2),
-//                    contentDescription = "Location map",
-//                    contentScale = ContentScale.Crop,
-//                    modifier = Modifier
-//                        .fillMaxWidth(0.9f)
-//                        .fillMaxHeight(0.7f)
-//                        .clip(RoundedCornerShape(20.dp))
-//                )
-//            }
-//        }
-//    }
-//}
+// Optional TopRecommendations Composable (refactored, clean)
+@Composable
+fun TopRecommendations() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        Text(
+            text = "Top Recommendations",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Black
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Left large image
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(20.dp))
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.welcome_case_tracking),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            // Right two stacked small images
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.picture1),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clip(RoundedCornerShape(20.dp))
+                )
+
+                Image(
+                    painter = painterResource(R.drawable.picture2),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clip(RoundedCornerShape(20.dp))
+                )
+            }
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewScreen() {
+fun PreviewWhatsNew() {
     WhatsNew(navController = rememberNavController())
 }

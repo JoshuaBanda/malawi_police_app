@@ -1,10 +1,9 @@
-
-
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package ui.authentication
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -17,15 +16,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.navigation.NavController
-import com.example.malawipoliceapp.ui.theme.primaryColor
-import com.example.malawipoliceapp.ui.theme.Gray
-import com.example.malawipoliceapp.ui.theme.White
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.malawipoliceapp.ui.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OtpVerificationScreen(navController: NavController, phoneNumber: String) {
+fun OtpVerificationScreen(
+    navController: NavController,
+    phoneNumber: String
+) {
     var otpCode by remember { mutableStateOf("") }
     var otpError by remember { mutableStateOf(false) }
 
@@ -34,43 +35,48 @@ fun OtpVerificationScreen(navController: NavController, phoneNumber: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(primaryColor),
+            .background(primaryColor)
+            .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Spacer(modifier = Modifier.height(100.dp))
 
         // Title
         Text(
             text = "Enter OTP",
             color = White,
-            fontSize = 20.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Info text
+        // Info
         Text(
             text = "We sent a 6-digit code to +265 $phoneNumber",
             color = White,
             fontSize = 14.sp,
-            modifier = Modifier.padding(horizontal = 20.dp),
             lineHeight = 18.sp
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // OTP Input
-        TextField(
+        // OTP Field
+        OutlinedTextField(
             value = otpCode,
             onValueChange = {
-                if (it.length <= 6 && it.all { char -> char.isDigit() }) {
+                if (it.length <= 6 && it.all(Char::isDigit)) {
                     otpCode = it
+                    otpError = false
                 }
+//                else if (it.isNotEmpty()) {
+//                    otpError = true
+//                }
             },
             placeholder = {
                 Text(
-                    text = "Enter OTP",
+                    "Enter OTP",
                     fontSize = 16.sp,
                     color = Gray.copy(alpha = 0.7f)
                 )
@@ -79,29 +85,27 @@ fun OtpVerificationScreen(navController: NavController, phoneNumber: String) {
             isError = otpError,
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth()
                 .height(56.dp),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done
             ),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = White,
-                unfocusedIndicatorColor = Gray.copy(alpha = 0.4f),
-                cursorColor = White,
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                containerColor = Color.White,
-                errorIndicatorColor = Color.Red,
-                errorLabelColor = Color.Red,
-                errorCursorColor = Color.Red
-            ),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.White,
+                unfocusedBorderColor = Gray.copy(alpha = 0.5f),
+                errorBorderColor = Color.White,
+                cursorColor = Color.White,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White
+            )
         )
 
+        // Error
         if (otpError) {
             Text(
                 text = "OTP must be 6 digits",
-                color = Color.Red,
+                color = Color.Red.copy(alpha = 0.5f),
                 fontSize = 12.sp,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -112,8 +116,8 @@ fun OtpVerificationScreen(navController: NavController, phoneNumber: String) {
         // Verify Button
         Button(
             onClick = {
+
                 if (isOtpValid) {
-                    // Navigate to next screen (e.g., HomePage)
                     navController.navigate("success_screen")
                 } else {
                     otpError = true
@@ -121,7 +125,7 @@ fun OtpVerificationScreen(navController: NavController, phoneNumber: String) {
             },
             enabled = isOtpValid,
             modifier = Modifier
-                .fillMaxWidth(0.7f)
+                .fillMaxWidth()
                 .height(50.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
@@ -129,7 +133,10 @@ fun OtpVerificationScreen(navController: NavController, phoneNumber: String) {
                 disabledContainerColor = White.copy(alpha = 0.3f),
                 contentColor = primaryColor,
                 disabledContentColor = primaryColor.copy(alpha = 0.5f)
-            )
+            ),
+            // ✅ Important: explicitly pass LocalIndication.current if needed
+            // This usually fixes the crash if a ripple/indication issue happens
+            interactionSource = remember { MutableInteractionSource() }
         ) {
             Text(
                 text = "Verify",
@@ -140,7 +147,7 @@ fun OtpVerificationScreen(navController: NavController, phoneNumber: String) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Show remaining characters
+        // Remaining digits indicator
         if (otpCode.isNotEmpty()) {
             Text(
                 text = "${otpCode.length}/6",
@@ -151,15 +158,31 @@ fun OtpVerificationScreen(navController: NavController, phoneNumber: String) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Resend OTP
-        TextButton(onClick = {
-            // handle resend logic
-        }) {
+        TextButton(
+            onClick = { /* resend OTP */ },
+            interactionSource = remember { MutableInteractionSource() } // Fix
+        ) {
             Text(
                 text = "Resend OTP",
                 color = White,
                 fontSize = 14.sp
             )
         }
+
     }
 }
+
+//////////////////////////////////////////////////
+// PREVIEW
+//////////////////////////////////////////////////
+
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun OtpVerificationScreenPreview() {
+//    MalawiPoliceAppTheme {
+//        OtpVerificationScreen(
+//            navController = rememberNavController(),
+//            phoneNumber = "999123456"
+//        )
+//    }
+//}

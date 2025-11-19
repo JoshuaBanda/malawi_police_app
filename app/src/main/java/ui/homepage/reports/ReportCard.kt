@@ -1,21 +1,13 @@
 package ui.homepage.reports
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FamilyRestroom
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,74 +15,60 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.malawipoliceapp.ui.theme.Black
 import com.example.malawipoliceapp.ui.theme.White
-import com.example.malawipoliceapp.ui.theme.complementoryColor
 import com.example.malawipoliceapp.ui.theme.primaryColor
+import ui.reports.ReportsMainScreen
+import ui.reports.typesOfReports.GenderBasedViolenceReportScreen
+
+// Use your existing ReportCardShape object
+import ui.reports.ReportBottomSheet
 
 
 @Composable
 fun ReportCard(navController: NavController, title: String, navigateTo: String) {
+    var isSheetOpen by rememberSaveable { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .height(350.dp)
             .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
+
+        // Main card
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .height(350.dp)
-                .shadow(1.dp, ReportCardShape) // optional shadow like SVG
+                .shadow(2.dp, ReportCardShape)
                 .clip(ReportCardShape)
+                .border(1.dp, Color.Black.copy(alpha = 0.1f), ReportCardShape)
                 .background(White)
-        )
-        {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                // ✅ Icon placeholder
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // Icon section
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(0.6f)
                         .clip(RoundedCornerShape(16.dp))
-                        .padding(
-                            top = 20.dp
-                        ),
+                        .padding(top = 20.dp),
                     contentAlignment = Alignment.Center
                 ) {
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .fillMaxHeight(1f)
-                            .clip(RoundedCornerShape(16.dp))
-                        //.background(primaryColor.copy(alpha = 0.2f))
-                    ) {
-
-                        // Center icon
-                        Icon(
-                            imageVector = Icons.Default.FamilyRestroom,
-                            contentDescription = "Favorite",
-                            tint = primaryColor,
-                            modifier = Modifier
-                                .size(100.dp)
-                                .align(Alignment.Center)
-                        )
-
-                    }
+                    Icon(
+                        imageVector = Icons.Default.FamilyRestroom,
+                        contentDescription = null,
+                        tint = primaryColor,
+                        modifier = Modifier.size(100.dp)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(70.dp))
 
-                // ✅ Title placeholder
+                // Title
                 Text(
                     text = title,
                     fontWeight = FontWeight.SemiBold,
@@ -98,57 +76,47 @@ fun ReportCard(navController: NavController, title: String, navigateTo: String) 
                     modifier = Modifier.padding(15.dp)
                 )
 
-
                 Spacer(modifier = Modifier.weight(1f))
-
-
             }
         }
 
+        // Bottom-right button to open bottom sheet
         Box(
             modifier = Modifier
                 .width(80.dp)
                 .height(40.dp)
                 .offset(x = (-20).dp, y = (-2).dp)
                 .align(Alignment.BottomEnd)
-                .shadow(
-                    elevation = 2.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    clip = false
-                )
+                .shadow(2.dp, RoundedCornerShape(16.dp), clip = false)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
-                .clickable {
-                    // Replace with your NavController navigation
-                    //navController.navigate(navigateTo)
-                },
+                .background(Color.White),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "Open",
-                fontWeight = FontWeight.Medium,
-                fontSize = 12.sp,
-                color = Color.Black
-            )
+            Button(
+                onClick = { isSheetOpen = true },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text(
+                    text = "Open",
+                    fontSize = 12.sp,
+                    color = Color.Black
+                )
+            }
+        }
+
+
+        // Bottom sheet
+        if (isSheetOpen) {
+            ReportBottomSheet(
+                navController = navController,
+                onDismiss = { isSheetOpen = false }
+            ) { nav ->
+                GenderBasedViolenceReportScreen(nav)
+            }
         }
 
     }
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-//@Preview(showBackground = true)
-//@Composable
-//fun Prev(){
-//    ReportCard(rememberNavController())
-//}

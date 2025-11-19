@@ -86,7 +86,7 @@ fun SignUpSignIn(navController: NavController) {
                 )
             }
             Button(
-                onClick = { /* Sign In logic */ },
+                onClick = { navController.navigate("sign_in") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(1.dp, complementoryColor), // yellow border
