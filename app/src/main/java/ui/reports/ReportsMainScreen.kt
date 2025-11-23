@@ -1,6 +1,5 @@
 package ui.reports
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,30 +8,37 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Report
+import androidx.compose.material.icons.filled.ReportProblem
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.malawipoliceapp.R
-import com.example.malawipoliceapp.ui.theme.White
 import com.example.malawipoliceapp.ui.theme.Black
+import com.example.malawipoliceapp.ui.theme.White
+import com.example.malawipoliceapp.ui.theme.primaryColor
 
-data class ReportType(val title: String, val navigateTo: String, val photo: Int)
+data class ReportType(
+    val title: String,
+    val navigateTo: String,
+    val icon: ImageVector      // 🌟 ICON instead of photo
+)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportsMainScreen(
     navController: NavController? = null,
@@ -40,35 +46,40 @@ fun ReportsMainScreen(
 ) {
 
     val typesOfReportsList = listOf(
-        ReportType("Report incident\n/crime", "incident_crime_screen", R.drawable.incident_icon),
-        ReportType("Track cases", "track_cases_screen", R.drawable.track_case_icon),
-        ReportType("Completed cases", "completed_cases_screen", R.drawable.complete_cases_icon),
+        ReportType("Report case", "report_case_screen", Icons.Default.ReportProblem),
+        ReportType("Track case", "track_cases_screen", Icons.Default.Assignment),
+        ReportType("Completed cases", "completed_cases_screen", Icons.Default.CheckCircle),
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(top = 20.dp)
-    ) {
-        Text(
-            text = "Reports",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Black,
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Services",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
+                        color = Black
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
+                modifier = Modifier.shadow(8.dp),       // ⭐ Adds shadow
+            )
+        }
+    ) { innerPadding ->
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(16.dp),
-            modifier = Modifier.fillMaxSize()
+            contentPadding = PaddingValues(24.dp),
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
         ) {
             items(typesOfReportsList) { item ->
                 Report(
                     item = item,
-                    navController = navController,
                     onClick = {
                         onReportClick(item.navigateTo)
                         navController?.navigate(item.navigateTo)
@@ -82,33 +93,31 @@ fun ReportsMainScreen(
 @Composable
 fun Report(
     item: ReportType,
-    navController: NavController?,
     onClick: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
-            .height(180.dp)
+            .height(140.dp)
+            .fillMaxWidth()
+
             .padding(8.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .shadow(8.dp, RoundedCornerShape(16.dp))
             .background(White, RoundedCornerShape(16.dp))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = LocalIndication.current  // safe ripple
+                indication = LocalIndication.current
             ) {
                 onClick()
             },
         contentAlignment = Alignment.Center
-    )
-    {
+    ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-            Image(
-                painter = painterResource(id = item.photo),
+            Icon(
+                imageVector = item.icon,
                 contentDescription = item.title,
-                modifier = Modifier
-                    .size(70.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
+                modifier = Modifier.size(30.dp),
+                tint = primaryColor
             )
 
             Text(
@@ -116,7 +125,8 @@ fun Report(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 10.dp),
                 fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
+                fontSize = 12.sp,
+                color = Black
             )
         }
     }
@@ -125,5 +135,5 @@ fun Report(
 @Preview(showBackground = true)
 @Composable
 fun ReportsPreview() {
-    ReportsMainScreen(navController = null)
+    ReportsMainScreen()
 }

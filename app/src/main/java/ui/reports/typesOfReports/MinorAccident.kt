@@ -23,8 +23,8 @@ fun MinorAccident(navController: NavController){
     ReportDetailsScreen(
         navController,
         report,
-        "gbv_report_form",
-        icon =  Icons.Default.CarCrash
+        "minor_accident",
+        icon =  Icons.Default.CarCrash,
     )
 
 }

@@ -20,7 +20,6 @@ import com.example.malawipoliceapp.ui.theme.complementoryColor
 import com.example.malawipoliceapp.ui.theme.primaryColor
 import ui.TruncatedText
 import ui.reports.ReportBottomSheet
-import ui.reports.typesOfReports.GenderBasedViolenceReportScreen
 import ui.reports.typesOfReports.MinorAccident
 
 @Composable

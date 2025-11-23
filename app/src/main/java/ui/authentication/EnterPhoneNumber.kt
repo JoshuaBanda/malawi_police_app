@@ -58,7 +58,7 @@ fun PhoneNumberScreen(
         OutlinedTextField(
             value = phoneNumber,
             onValueChange = {
-                if (it.all(Char::isDigit) && it.length <= 15) {
+                if (it.all(Char::isDigit) && it.length <= 10) {
                     phoneNumber = it
                     phoneError = false
                 } else if (it.isNotEmpty()) {

@@ -20,15 +20,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.malawipoliceapp.ui.theme.White
 import com.example.malawipoliceapp.ui.theme.primaryColor
-import ui.reports.ReportsMainScreen
-import ui.reports.typesOfReports.GenderBasedViolenceReportScreen
 
 // Use your existing ReportCardShape object
 import ui.reports.ReportBottomSheet
+import ui.reports.typesOfReports.GenderBasedViolence
 
 
 @Composable
-fun ReportCard(navController: NavController, title: String, navigateTo: String) {
+fun ReportCard(navController: NavController, title: String) {
     var isSheetOpen by rememberSaveable { mutableStateOf(false) }
 
     Box(
@@ -112,7 +111,7 @@ fun ReportCard(navController: NavController, title: String, navigateTo: String) 
                 navController = navController,
                 onDismiss = { isSheetOpen = false }
             ) { nav ->
-                GenderBasedViolenceReportScreen(nav)
+                GenderBasedViolence(nav)
             }
         }
 

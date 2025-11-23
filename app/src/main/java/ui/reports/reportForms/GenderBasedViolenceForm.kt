@@ -1,8 +1,8 @@
 package ui.reports.reportForms
 
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -10,15 +10,19 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.malawipoliceapp.ui.theme.Black
 import com.example.malawipoliceapp.ui.theme.Gray
+import com.example.malawipoliceapp.ui.theme.complementoryColor
 import com.example.malawipoliceapp.ui.theme.primaryColor
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,7 +35,7 @@ fun GenderBasedViolenceForm(navController: NavController) {
     Scaffold(
         topBar = {
             TopBar(
-                navController = navController, // ✅ Pass it here
+                navController = navController,
                 scrollBehavior = scrollBehavior
             )
         }
@@ -46,7 +50,7 @@ fun TopBar(
     navController: NavController,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    colors: TopAppBarColors = TopAppBarDefaults.smallTopAppBarColors()
+    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors()
 ) {
     TopAppBar(
         title = {
@@ -72,17 +76,18 @@ fun TopBar(
     )
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Screen(
     modifier: Modifier = Modifier
 ) {
     // Applicant section
-    var applicantName by remember { mutableStateOf("") }
+    var applicantName by remember { mutableStateOf("Joshua Banda") }
     var applicantAddress by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    val policeStationList = listOf("Area 3 Police", "Lilongwe Police", "Mchinji Police", "Blantyre Police")
+    var phoneNumber by remember { mutableStateOf("0885249030") }
+
+    val policeStationList =
+        listOf("Area 3 Police", "Lilongwe Police", "Mchinji Police", "Blantyre Police")
     var selectedPoliceStation by remember { mutableStateOf("") }
     var stationExpanded by remember { mutableStateOf(false) }
 
@@ -105,20 +110,28 @@ fun Screen(
             .padding(25.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        // --- APPLICANT DETAILS ---
         SectionTitle("Applicant Details")
 
         InputHeader("Full Name")
-        CustomTextField(value = applicantName, onValueChange = { applicantName = it })
-
-        InputHeader("Address")
-        CustomTextField(value = applicantAddress, onValueChange = { applicantAddress = it })
+        CustomTextField(
+            value = applicantName,
+            onValueChange = {},
+            placeholder = "Applicant Name",
+            readOnly = true
+        )
 
         InputHeader("Phone Number")
         CustomTextField(
             value = phoneNumber,
             onValueChange = { phoneNumber = it },
-            keyboardType = KeyboardType.Phone
+            keyboardType = KeyboardType.Phone,
+            readOnly = true,
+        )
+
+        InputHeader("Address")
+        CustomTextField(
+            value = applicantAddress,
+            onValueChange = { applicantAddress = it }
         )
 
         InputHeader("Police Station")
@@ -126,19 +139,27 @@ fun Screen(
             expanded = stationExpanded,
             onExpandedChange = { stationExpanded = !stationExpanded }
         ) {
-            TextField(
+            OutlinedTextField(
                 value = selectedPoliceStation,
                 onValueChange = {},
                 readOnly = true,
                 placeholder = { Text("Select police station") },
-                colors = textFieldColors(),
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .menuAnchor()
                     .fillMaxWidth(),
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = stationExpanded)
-                }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = primaryColor,
+                    unfocusedBorderColor = Gray.copy(alpha = 0.5f),
+                    cursorColor = primaryColor,
+                    focusedTextColor = Black,
+                    unfocusedTextColor = Black
+                )
             )
+
             ExposedDropdownMenu(
                 expanded = stationExpanded,
                 onDismissRequest = { stationExpanded = false }
@@ -155,7 +176,7 @@ fun Screen(
             }
         }
 
-        // --- SUSPECT DETAILS ---
+        // Suspect Section
         SectionTitle("Suspect Details")
 
         InputHeader("Suspect Name")
@@ -174,27 +195,35 @@ fun Screen(
         InputHeader("Relationship with Suspect")
         CustomTextField(value = relationship, onValueChange = { relationship = it })
 
-        // --- REPORT DETAILS ---
         SectionTitle("Report Details")
 
         InputHeader("Applicant Type")
+
         ExposedDropdownMenuBox(
             expanded = typeExpanded,
             onExpandedChange = { typeExpanded = !typeExpanded }
         ) {
-            TextField(
+            OutlinedTextField(
                 value = selectedApplicantType,
                 onValueChange = {},
                 readOnly = true,
                 placeholder = { Text("Select applicant type") },
-                colors = textFieldColors(),
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .menuAnchor()
                     .fillMaxWidth(),
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeExpanded)
-                }
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = primaryColor,
+                    unfocusedBorderColor = Gray.copy(alpha = 0.5f),
+                    cursorColor = primaryColor,
+                    focusedTextColor = Black,
+                    unfocusedTextColor = Black
+                )
             )
+
             ExposedDropdownMenu(
                 expanded = typeExpanded,
                 onDismissRequest = { typeExpanded = false }
@@ -218,7 +247,11 @@ fun Screen(
                 if (it.split("\\s+".toRegex()).size <= 400) description = it
             },
             placeholder = { Text("Briefly describe what happened...") },
-            colors = textFieldColors(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = primaryColor,
+                unfocusedBorderColor = Gray.copy(alpha = 0.5f),
+                cursorColor = primaryColor
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(180.dp),
@@ -230,76 +263,87 @@ fun Screen(
             )
         )
 
-        // --- SUBMIT BUTTON ---
         Button(
-            onClick = { /* handle submission */ },
+            onClick = { /* submit */ },
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
+            colors = ButtonDefaults.buttonColors(containerColor = complementoryColor)
         ) {
             Text("Submit Report", fontWeight = FontWeight.Bold)
         }
     }
 }
 
-// --- Reusable components ---
 @Composable
 fun SectionTitle(title: String) {
     Text(
-        text = title,
+        title,
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
-        color = Black,
+        color = Black
     )
 }
 
 @Composable
 fun InputHeader(text: String) {
     Text(
-        text = text,
+        text,
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,
-        color = Black,
+        color = Black
     )
 }
-
-
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    keyboardType: KeyboardType = KeyboardType.Text
+    placeholder: String = "Enter text",
+    readOnly: Boolean = false,
+    isError: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text,
 ) {
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        colors = textFieldColors(),
+        readOnly = readOnly,
+        isError = isError,
+        singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp), // small space between fields
+            .height(56.dp)
+            .padding(vertical = 4.dp),
         textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
-        singleLine = true, // keeps field height compact
+
+        placeholder = {
+            Text(
+                placeholder,
+                fontSize = 14.sp,
+                color = Gray.copy(alpha = 0.7f)
+            )
+        },
+
+        shape = RoundedCornerShape(12.dp),
+
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.Words,
             keyboardType = keyboardType,
             imeAction = ImeAction.Next
         ),
-        placeholder = { Text("Enter text", fontSize = 13.sp, color = Gray) } // optional
+
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = primaryColor,
+            unfocusedBorderColor = Gray.copy(alpha = 0.5f),
+            errorBorderColor = Color.Red.copy(alpha = 0.5f),
+            cursorColor = primaryColor,
+            focusedTextColor = Black,
+            unfocusedTextColor = Black
+        )
     )
 }
 
-
-
-
-
-
+@Preview
 @Composable
-fun textFieldColors() = TextFieldDefaults.colors(
-    focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-    unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-    focusedIndicatorColor = primaryColor,
-    unfocusedIndicatorColor = Gray
-)
+fun PreviewForm() {
+    GenderBasedViolenceForm(rememberNavController())
+}

@@ -38,7 +38,7 @@ fun HomeContent(navController: NavController) {
         topBar = {
             Column {
                 // Small Top App Bar that disappears when scrolling
-                SmallTopAppBar(
+                TopAppBar(
                     title = {
                         Text(
                             text = "Malawi Police App",

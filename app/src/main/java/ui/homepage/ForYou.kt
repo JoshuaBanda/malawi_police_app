@@ -34,7 +34,6 @@ fun ForYou(navController: NavController) {
         ReportCard(
             navController = navController,
             "Gender based violence",
-            "gbv_report_details"
         )
 
         Spacer(modifier = Modifier.height(50.dp))

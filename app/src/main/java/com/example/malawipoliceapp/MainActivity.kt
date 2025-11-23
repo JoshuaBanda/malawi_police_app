@@ -17,7 +17,6 @@ import ui.authentication.PhoneNumberScreen
 import ui.authentication.SignUp
 import ui.homepage.HomePage
 import ui.reports.reportForms.GenderBasedViolenceForm
-import ui.reports.typesOfReports.GenderBasedViolenceReportScreen
 import ui.welcoming.SwipablePagerScreen
 
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -33,6 +32,10 @@ import ui.authentication.PasswordOtpVerification
 import ui.authentication.ResetPasswordScreen
 import ui.authentication.SingIn
 import ui.profile.UserProfileScreen
+import ui.reports.ReportsMainScreen
+import ui.reports.group.reportCase.ReportCaseScreen
+import ui.reports.reportForms.MinorAccident
+import ui.reports.typesOfReports.GenderBasedViolence
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,12 +65,15 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-                Box (
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(backgroundColor) // theme-based background
-                ){
-                    NavHost(navController = navController, startDestination = "forgot_password") {
+                ) {
+                    NavHost(
+                        navController = navController,
+                        startDestination = "report_case_screen"
+                    ) {
                         composable("welcome") {
                             SwipablePagerScreen(navController)
                         }
@@ -78,7 +84,7 @@ class MainActivity : ComponentActivity() {
                             HomePage(navController)
                         }
                         composable("gbv_report_details") {
-                            GenderBasedViolenceReportScreen(navController)
+                            GenderBasedViolence(navController)
                         }
                         composable("gbv_report_form") {
                             GenderBasedViolenceForm(navController)
@@ -121,6 +127,18 @@ class MainActivity : ComponentActivity() {
                         composable("password_otp_verification/{phone}") { backStackEntry ->
                             val phone = backStackEntry.arguments?.getString("phone") ?: ""
                             PasswordOtpVerification(navController, phone)
+                        }
+
+
+                        composable("report_main_screen") {
+                            ReportsMainScreen(navController)
+                        }
+                        composable("report_case_screen") {
+                            ReportCaseScreen(navController)
+                        }
+
+                        composable("minor_accident") {
+                            MinorAccident(navController)
                         }
 
                     }

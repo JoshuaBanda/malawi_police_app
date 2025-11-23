@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.malawipoliceapp"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.malawipoliceapp"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -28,11 +28,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -72,6 +72,8 @@ dependencies {
 
 
     implementation("com.google.accompanist:accompanist-pager-indicators:0.32.0")
-
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+    implementation("com.github.skydoves:landscapist-glide:2.6.0")
+    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
 
 }

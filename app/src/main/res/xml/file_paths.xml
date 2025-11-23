@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- IMPORTANT: This matches your crash -->
+    <cache-path
+        name="cache"
+        path="." />
+
+    <!-- Optional: external files -->
+    <external-files-path
+        name="images"
+        path="Pictures/" />
+</paths>

@@ -7,7 +7,7 @@ import androidx.navigation.NavController
 import ui.reports.ReportService
 
 @Composable
-fun GenderBasedViolenceReportScreen(navController: NavController){
+fun GenderBasedViolence(navController: NavController){
     val report = ReportService(
         title = "Gender based violence",
         description = "Report cases of domestic abuse, sexual harassment, rape, or any form of gender-based violence.",

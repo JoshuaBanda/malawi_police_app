@@ -27,5 +27,4 @@ fun UnkownAccidents(navController: NavController){
         "gbv_report_form",
         icon =  Icons.Default.QuestionMark
     )
-
 }
