@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.protobuf)
 }
 
 android {
@@ -48,8 +50,8 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
     implementation(libs.androidx.room.runtime.android)
+    implementation(libs.androidx.compose.foundation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -64,16 +66,38 @@ dependencies {
     val nav_version = "2.9.5"
 
     implementation("androidx.navigation:navigation-compose:$nav_version")
-
-
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
-
-    implementation ("com.google.accompanist:accompanist-pager:0.36.0")
-
-
     implementation("com.google.accompanist:accompanist-pager-indicators:0.32.0")
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
     implementation("com.github.skydoves:landscapist-glide:2.6.0")
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
 
+    implementation(platform("androidx.compose:compose-bom:2024.10.00"))
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.datastore.proto)
+    implementation(libs.protobuf.javalite)
+
+
 }
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.3"
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
+

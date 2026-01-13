@@ -18,3 +18,9 @@ val Gray = Color(0xFF9E9E9E)
 val Black = Color(0xFF000000)
 val White = Color(0xFFFFFFFF)
 
+// In your colors.kt or theme file
+val onSurfaceVariant = Color(0xFF49454F)  // Example color - adjust as needed
+val surfaceVariant = Color(0xFFE7E0EC)    // Example color - adjust as needed
+val outlineVariant = Color(0xFFCAC4D0)    // Example color - adjust as needed
+val primaryContainer = Color(0xFFEADDFF)  // Example color - adjust as needed
+val onPrimaryContainer = Color(0xFF21005D) // Example color - adjust as needed

@@ -1,4 +1,4 @@
-package ui.homepage.news
+package ui.homepage
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

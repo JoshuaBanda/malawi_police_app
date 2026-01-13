@@ -1,4 +1,4 @@
-package ui.homepage.search
+package ui.homepage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

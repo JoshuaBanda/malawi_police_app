@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.Text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import ui.homepage.news.WeeklyUpdatesSlideshow
 import ui.reports.typesOfReports.UnkownAccidents
 import ui.reports.typesOfReports.MinorAccident
 

@@ -1,9 +1,7 @@
 package ui.homepage
 
-import WhatsNew
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.NotificationsNone
@@ -12,7 +10,6 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -23,21 +20,27 @@ import com.example.malawipoliceapp.ui.theme.White
 import com.example.malawipoliceapp.ui.theme.complementoryColor
 import com.example.malawipoliceapp.ui.theme.mograFontFamily
 import com.example.malawipoliceapp.ui.theme.primaryColor
-import kotlinx.coroutines.launch
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 enum class HomeTab { ForYou, WhatsNew }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeContent(navController: NavController) {
+
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     var selectedTab by remember { mutableStateOf(HomeTab.ForYou) }
+
+    // Status bar white
+    val systemUiController = rememberSystemUiController()
+    SideEffect {
+        systemUiController.setStatusBarColor(color = White, darkIcons = true)
+    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             Column {
-                // Small Top App Bar that disappears when scrolling
                 TopAppBar(
                     title = {
                         Text(
@@ -65,18 +68,20 @@ fun HomeContent(navController: NavController) {
                             }
                         }
                     },
-                    scrollBehavior = scrollBehavior
+                    scrollBehavior = scrollBehavior,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = White,
+                        titleContentColor = primaryColor
+                    )
                 )
 
-                // Tabs that always stay pinned at the top
+                // Tabs
                 TabRow(
                     selectedTabIndex = selectedTab.ordinal,
                     modifier = Modifier.fillMaxWidth(),
                     containerColor = White,
                     contentColor = primaryColor,
-                    divider = {
-                        // Empty lambda - this removes the grey divider completely
-                    },
+                    divider = {},
                     indicator = { tabPositions ->
                         TabRowDefaults.Indicator(
                             modifier = Modifier
@@ -88,7 +93,7 @@ fun HomeContent(navController: NavController) {
                         )
                     }
                 ) {
-                    HomeTab.values().forEachIndexed { index, tab ->
+                    HomeTab.values().forEach { tab ->
                         Tab(
                             selected = selectedTab == tab,
                             onClick = { selectedTab = tab },
@@ -98,18 +103,17 @@ fun HomeContent(navController: NavController) {
                                         HomeTab.ForYou -> "For You"
                                         HomeTab.WhatsNew -> "What's New"
                                     },
-                                    //fontWeight = if (selectedTab == tab) FontWeight.Bold else FontWeight.Normal
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
+                                    fontSize = 14.sp
                                 )
                             }
                         )
                     }
                 }
             }
-        }
+        },
+        //containerColor = primaryColor // Content background
     ) { paddingValues ->
-        // Content based on selected tab
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -117,8 +121,9 @@ fun HomeContent(navController: NavController) {
         ) {
             when (selectedTab) {
                 HomeTab.ForYou -> ForYou(navController)
-                HomeTab.WhatsNew -> WhatsNew(navController)
+                HomeTab.WhatsNew -> WhatsNew()
             }
         }
     }
 }
+

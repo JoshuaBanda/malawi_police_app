@@ -3,172 +3,146 @@ package ui.authentication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.malawipoliceapp.ui.theme.Gray
 import com.example.malawipoliceapp.ui.theme.White
 import com.example.malawipoliceapp.ui.theme.mograFontFamily
 import com.example.malawipoliceapp.ui.theme.primaryColor
 
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import ui.authentication.data.LoginViewModel
+
 @Composable
-fun SingIn(navController: NavController) {
-    var phoneNumber by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var phoneNumberError by remember { mutableStateOf(false) }
-    var passwordError by remember { mutableStateOf(false) }
+fun SignIn(
+    navController: NavController,
+    viewModel: LoginViewModel = viewModel()
+) {
+
+    val systemUiController = rememberSystemUiController()
+
+    // Change nav bar and status bar colors
+    SideEffect {
+
+        systemUiController.setNavigationBarColor(
+            color = primaryColor,
+            darkIcons = false
+        )
+    }
+
+    val credentials by viewModel.credentials.collectAsState()
+    val loginState by viewModel.uiState.collectAsState()
+
     var isPasswordVisible by remember { mutableStateOf(false) }
 
-    // Calculate if form is valid - SIMPLIFIED APPROACH
-    val isFormValid = phoneNumber.isNotEmpty() && phoneNumber.length >= 9 && password.isNotEmpty()
+    val isFormValid =
+        credentials.phoneNumber.length >= 9 &&
+                credentials.password.isNotBlank()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    // Navigate on success
+    LaunchedEffect(loginState.user) {
+        if (loginState.user != null) {
+            navController.navigate("success_screen") {
+                popUpTo("sign_in") { inclusive = true }
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
+                .imePadding()              // keyboard
+                .navigationBarsPadding()   // system nav
         ) {
-            // Header section
+
             Text(
                 text = "Welcome back",
                 fontFamily = mograFontFamily,
                 fontSize = 24.sp,
                 color = primaryColor,
-                modifier = Modifier.padding(horizontal = 24.dp)
+                modifier = Modifier.padding(24.dp)
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Form section
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.65f)
-                    .clip(RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp))
+                    .fillMaxHeight(0.7f)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                     .background(primaryColor)
                     .padding(24.dp),
-                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Phone Number Field
+
+                // Phone Number
                 OutlinedTextField(
-                    value = phoneNumber,
+                    value = credentials.phoneNumber,
                     onValueChange = {
-                        if (it.all { char -> char.isDigit() } && it.length <= 10) {
-                            phoneNumber = it
-                            phoneNumberError = false
+                        if (it.all(Char::isDigit) && it.length <= 10) {
+                            viewModel.handlePhoneChanged(it)
+                            viewModel.clearError()
                         }
                     },
-                    placeholder = {
-                        Text(
-                            "Phone Number",
-                            fontSize = 16.sp,
-                            color = Gray.copy(alpha = 0.7f)
-                        )
-                    },
+                    placeholder = { Text("Phone Number") },
                     singleLine = true,
-                    isError = phoneNumberError,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Phone,
                         imeAction = ImeAction.Next
                     ),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = White,
-                        unfocusedBorderColor = Gray.copy(alpha = 0.5f),
-                        errorBorderColor = Color.Red.copy(alpha = 0.5f),
+                        focusedTextColor = White,
+                        unfocusedTextColor = White,
                         cursorColor = White,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        focusedBorderColor = White,
+                        unfocusedBorderColor = Gray
                     )
                 )
 
-                // Phone number error
-                if (phoneNumberError) {
-                    Text(
-                        text = "Please enter a valid phone number",
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
-
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Password Field
+                // Password
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { newPassword ->
-                        if (newPassword.length <= 20) {
-                            password = newPassword
-                            passwordError = false
-                        }
+                    value = credentials.password,
+                    onValueChange = {
+                        viewModel.handlePasswordChanged(it)
+                        viewModel.clearError()
                     },
-                    placeholder = {
-                        Text(
-                            "Password",
-                            fontSize = 16.sp,
-                            color = Gray.copy(alpha = 0.7f)
-                        )
-                    },
+                    placeholder = { Text("Password") },
                     singleLine = true,
-                    isError = passwordError,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    visualTransformation = if (isPasswordVisible) {
-                        VisualTransformation.None
-                    } else {
-                        PasswordVisualTransformation()
-                    },
+                    visualTransformation =
+                        if (isPasswordVisible)
+                            VisualTransformation.None
+                        else PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                        IconButton(onClick = {
+                            isPasswordVisible = !isPasswordVisible
+                        }) {
                             Icon(
-                                imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
+                                imageVector =
+                                    if (isPasswordVisible)
+                                        Icons.Default.Visibility
+                                    else Icons.Default.VisibilityOff,
+                                contentDescription = null,
                                 tint = Gray
                             )
                         }
@@ -177,105 +151,78 @@ fun SingIn(navController: NavController) {
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = White,
-                        unfocusedBorderColor = Gray.copy(alpha = 0.5f),
-                        errorBorderColor = Color.Red.copy(alpha = 0.5f),
+                        focusedTextColor = White,
+                        unfocusedTextColor = White,
                         cursorColor = White,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        focusedBorderColor = White,
+                        unfocusedBorderColor = Gray
                     )
                 )
 
-                // Password error
-                if (passwordError) {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Error message
+                loginState.errorMessage?.let {
                     Text(
-                        text = "Password is required",
+                        text = it,
                         color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 8.dp)
+                        fontSize = 12.sp
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Sign In Button with constraint principle
+                // Button
                 Button(
-                    onClick = {
-                        val isPhoneValid = phoneNumber.isNotEmpty() && phoneNumber.length >= 9
-                        val isPasswordValid = password.isNotEmpty()
-
-                        phoneNumberError = !isPhoneValid
-                        passwordError = !isPasswordValid
-
-                        if (isPhoneValid && isPasswordValid) {
-                            navController.navigate("success_screen")
-                        }
-                    },
+                    onClick = { viewModel.login() },
+                    enabled = isFormValid && !loginState.isLoading,
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
                         .height(56.dp)
-                        .alpha(if (isFormValid) 1f else 0.9f),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = isFormValid,
+                        .alpha(if (isFormValid) 1f else 0.6f),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isFormValid) White else White.copy(alpha = 0.5f),
-                        contentColor = if (isFormValid) primaryColor else primaryColor.copy(alpha = 0.5f),
-                        disabledContainerColor = White.copy(alpha = 0.5f),
-                        disabledContentColor = primaryColor.copy(alpha = 0.5f)
+                        containerColor = White,
+                        contentColor = primaryColor,
+                        disabledContainerColor = White.copy(alpha = 0.3f),
+                        disabledContentColor = White.copy(alpha = 0.7f)
                     )
                 ) {
                     Text(
-                        text = "Sign In",
-                        fontSize = 16.sp,
+                        text =
+                            if (loginState.isLoading)
+                                "Signing in..."
+                            else
+                                "Sign In",
                         fontWeight = FontWeight.Medium
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                // Sign up option
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Don't have an account? Sign Up",
-                        color = White.copy(alpha = 0.8f),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null // No ripple OR replace with Material3 ripple
-                        ) {
-                            navController.navigate("sign_up")
-                        }
+                Text(
+                    text = "Don't have an account? Sign Up",
+                    color = White,
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        navController.navigate("sign_up")
+                    }
+                )
 
-                    )
-                }
+                Spacer(modifier = Modifier.height(12.dp))
 
-                Spacer(modifier = Modifier.height(20.dp))
-                // Sign up option
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Forgot password?",
-                        color = White.copy(alpha = 0.8f),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            navController.navigate("forgot_password") {
-                                launchSingleTop = true
-                            }
-                        }
-                    )
-                }
-
+                Text(
+                    text = "Forgot password?",
+                    color = White,
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        navController.navigate("forgot_password")
+                    }
+                )
             }
         }
     }

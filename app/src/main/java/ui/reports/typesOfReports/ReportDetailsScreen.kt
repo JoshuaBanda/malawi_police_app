@@ -26,178 +26,80 @@ import com.example.malawipoliceapp.ui.theme.primaryColor
 import androidx.compose.material3.Button
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+
 
 import com.example.malawipoliceapp.ui.theme.complementoryColor
 import ui.TruncatedText
 import ui.reports.ReportService
-
 @Composable
-fun ReportDetailsScreen(navController: NavController, report: ReportService,navigateTo:String,icon: ImageVector) {
+fun ReportDetailsScreen(
+    navController: NavController,
+    report: ReportService,
+    navigateTo: String,
+    icon: ImageVector
+) {
     val title = report.title
     val description = report.description
     val eligibility = report.eligibility
     val requiredDocuments = report.requiredDocuments
     val conditions = report.conditions
 
-
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(White)
-            .verticalScroll(rememberScrollState())
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Left Icon Section
-            Box(
+        // Header: Icon + Title
+        item {
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth(0.3f)
-                    .fillMaxHeight(0.7f)
-                    .clip(RoundedCornerShape(5))
-                    .background(complementoryColor/*.copy(alpha = 0.9f)*/),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .height(150.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector =icon,
-                    contentDescription = "Report Type Icon",
-                    tint = White,
-                    modifier = Modifier.size(60.dp)
-                )
-            }
-
-            // Right Text Section
-            Box(
-                modifier = Modifier
-                    .weight(0.7f)
-                    .fillMaxHeight()
-                    .background(Color.White),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalArrangement = Arrangement.Center
+                        .fillMaxWidth(0.3f)
+                        .fillMaxHeight(0.7f)
+                        .clip(RoundedCornerShape(5))
+                        .background(complementoryColor),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = title,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp,
-                        color = Color.Black
-                    )
-                    TruncatedText(
-                        text = description,
-                        maxChar = 50,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-            }
-        }
-
-        // 🔹 Description Section
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(White)
-                .padding(16.dp)
-        ) {
-            Text(
-                text = description,
-                fontSize = 14.sp,
-                lineHeight = 20.sp,
-                color = Color.Black
-            )
-        }
-
-
-        // 🔹 Eligibility Section
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Icon + Title (centered)
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.People,
-                        contentDescription = "Eligibility Icon",
-                        tint = White,
-                        modifier = Modifier
-                            .size(36.dp)
-
-                            .clip(RoundedCornerShape(50))
-                            .background(primaryColor)
-                            .padding(8.dp),
-
-
-                        )
-                    Text(
-                        text = "Who can report",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                    Icon(imageVector = icon, contentDescription = "Report Type Icon", tint = White, modifier = Modifier.size(60.dp))
                 }
 
-                // Eligibility list (left-aligned)
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                Box(
+                    modifier = Modifier.weight(0.7f).fillMaxHeight().background(Color.White),
+                    contentAlignment = Alignment.Center
                 ) {
-
-                    Text(
-                        text = "Who is eligible to apply for the service",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    eligibility.forEach { item ->
-                        Text(
-                            text = "• $item",
-                            fontSize = 14.sp,
-                            color = Color.Black
-                        )
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(title, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = Color.Black)
+                        TruncatedText(text = description, maxChar = 50, modifier = Modifier.padding(top = 4.dp))
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(50.dp))
+        // Description Section
+        item {
+            Column(modifier = Modifier.fillMaxWidth().background(White).padding(16.dp)) {
+                Text(text = description, fontSize = 14.sp, lineHeight = 20.sp, color = Color.Black)
+            }
+        }
 
-
-
-
-
-
-
-
-
-
-        // documents  Section
-        if (requiredDocuments.isNotEmpty()) {
+        // Eligibility Section
+        item {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(
-                        BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f)),
-                        shape = RoundedCornerShape(8.dp)
-                    )
+                    .border(BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f)), shape = RoundedCornerShape(8.dp))
                     .padding(16.dp)
             ) {
                 Column(
@@ -205,112 +107,98 @@ fun ReportDetailsScreen(navController: NavController, report: ReportService,navi
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Icon + Title (centered)
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
-                            imageVector = Icons.Default.FilePresent,
-                            contentDescription = "condition Icon",
+                            imageVector = Icons.Default.People,
+                            contentDescription = "Eligibility Icon",
                             tint = White,
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(50))
-                                .background(primaryColor)
-                                .padding(8.dp)
+                            modifier = Modifier.size(36.dp).clip(RoundedCornerShape(50)).background(primaryColor).padding(8.dp)
                         )
-                        Text(
-                            text = "Documents Required",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
+                        Text("Who can report", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
 
-                    // Description + List
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Text(
-                            text = "Required documents for applying for the service",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                        Text("Who is eligible to apply for the service", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                        eligibility.forEach { item -> Text("• $item", fontSize = 14.sp, color = Color.Black) }
+                    }
+                }
+            }
+        }
 
-                        requiredDocuments.forEach { item ->
-                            Text(
-                                text = "• $item",
-                                fontSize = 14.sp,
-                                color = Color.Black
+        // Documents Section
+        if (requiredDocuments.isNotEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f)), shape = RoundedCornerShape(8.dp))
+                        .padding(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = Icons.Default.FilePresent,
+                                contentDescription = "Documents Icon",
+                                tint = White,
+                                modifier = Modifier.size(36.dp).clip(RoundedCornerShape(50)).background(primaryColor).padding(8.dp)
                             )
+                            Text("Documents Required", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        }
+
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text("Required documents for applying for the service", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                            requiredDocuments.forEach { item -> Text("• $item", fontSize = 14.sp, color = Color.Black) }
                         }
                     }
                 }
             }
         }
 
-
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-
-            Text(
-                text = "Conditions",
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-            )
+        // Conditions Section
+        item {
             Column(
-
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
-                conditions.forEach { item ->
-                    Text(
-                        text = "• $item",
-                        fontSize = 14.sp,
-                        color = Color.Black
-                    )
-
+                Text("Conditions", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    conditions.forEach { item -> Text("• $item", fontSize = 14.sp, color = Color.Black) }
                 }
-
             }
         }
 
-        Spacer(modifier = Modifier.height(100.dp))
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            Button(
-                onClick = {
-                    navController.navigate(navigateTo)
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = complementoryColor // yellow color
-                ),
-                shape = RoundedCornerShape(25.dp),
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)   // button width is 80% of the screen
-                    .height(50.dp)
-            ) {
-                Text(
-                    text = "Apply",
-                    fontWeight = FontWeight.Bold,
-                    color = primaryColor
-                )
+        // Apply Button
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Button(
+                    onClick = { navController.navigate(navigateTo) },
+                    colors = ButtonDefaults.buttonColors(containerColor = complementoryColor),
+                    shape = RoundedCornerShape(25.dp),
+                    modifier = Modifier.fillMaxWidth(0.8f).height(50.dp)
+                ) {
+                    Text("Apply", fontWeight = FontWeight.Bold, color = primaryColor)
+                }
             }
         }
+
+        item { Spacer(modifier = Modifier.height(50.dp)) }
     }
 }
-
-
-
-//@Preview(showBackground = true)
-//@Composable
-//fun Prev() {
-//    ReportDetailsScreen(rememberNavController())
-//}

@@ -1,21 +1,20 @@
-package ui.homepage.news
+package ui.news
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ModeComment
-import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -33,93 +32,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import com.example.malawipoliceapp.ui.theme.Black
-import com.example.malawipoliceapp.ui.theme.primaryColor
 
 // Custom Shape for Post
-val PostShape = object : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline {
-        val path = Path().apply {
-            val w = size.width
-            val h = size.height
-
-            // Scale factors based on SVG size 349x420
-            val scaleX = w / 349f
-            val scaleY = h / 420f
-
-            moveTo(349f * scaleX, 347f * scaleY)
-
-            cubicTo(
-                349f * scaleX, 358.046f * scaleY,
-                340.046f * scaleX, 367f * scaleY,
-                329f * scaleX, 367f * scaleY
-            )
-
-            lineTo(157f * scaleX, 367f * scaleY)
-
-            cubicTo(
-                145.954f * scaleX, 367f * scaleY,
-                137f * scaleX, 375.954f * scaleY,
-                137f * scaleX, 387f * scaleY
-            )
-
-            lineTo(137f * scaleX, 400f * scaleY)
-
-            cubicTo(
-                137f * scaleX, 411.046f * scaleY,
-                128.046f * scaleX, 420f * scaleY,
-                117f * scaleX, 420f * scaleY
-            )
-
-            lineTo(20f * scaleX, 420f * scaleY)
-
-            cubicTo(
-                8.9543f * scaleX, 420f * scaleY,
-                0f * scaleX, 411.046f * scaleY,
-                0f * scaleX, 400f * scaleY
-            )
-
-            lineTo(0f * scaleX, 20f * scaleY)
-
-            cubicTo(
-                0f * scaleX, 8.9543f * scaleY,
-                8.9543f * scaleX, 0f * scaleY,
-                20f * scaleX, 0f * scaleY
-            )
-
-            lineTo(329f * scaleX, 0f * scaleY)
-
-            cubicTo(
-                340.046f * scaleX, 0f * scaleY,
-                349f * scaleX, 8.9543f * scaleY,
-                349f * scaleX, 20f * scaleY
-            )
-
-            lineTo(349f * scaleX, 347f * scaleY)
-
-            close()
-        }
-        return Outline.Generic(path)
-    }
-}
 
 @Composable
-fun PostImage(photoId: Int, modifier: Modifier = Modifier) {
+fun LastNewsImage(photoId: Int, modifier: Modifier = Modifier,
+                  onCommentClick: () -> Unit = {}) {
     Box(
         modifier = modifier // Add modifier to outer Box to inherit size constraints
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(1f)
-                //.height(200.dp)
+                .height(400.dp)
                 .clip(PostShape)
         ) {
             Image(
@@ -181,9 +110,9 @@ fun PostImage(photoId: Int, modifier: Modifier = Modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(70.dp),
+                    .width(70.dp).clickable { onCommentClick() },
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     imageVector = Icons.Default.ModeComment,

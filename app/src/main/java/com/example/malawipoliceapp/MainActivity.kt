@@ -4,143 +4,133 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.core.view.WindowCompat
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.malawipoliceapp.ui.theme.MalawiPoliceAppTheme
-import ui.SuccessScreen
-import ui.authentication.OtpVerificationScreen
-import ui.authentication.PhoneNumberScreen
-import ui.authentication.SignUp
-import ui.homepage.HomePage
-import ui.reports.reportForms.GenderBasedViolenceForm
-import ui.welcoming.SwipablePagerScreen
-
+import com.example.malawipoliceapp.ui.theme.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import androidx.compose.runtime.SideEffect
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.Modifier
-import ui.authentication.ForgetPasswordScreen
-import ui.authentication.KBAScreen
-import ui.authentication.PasswordOtpVerification
-import ui.authentication.ResetPasswordScreen
-import ui.authentication.SingIn
+import ui.SuccessScreen
+import ui.authentication.*
+import ui.homepage.HomePage
+import ui.news.CurrentNews
 import ui.profile.UserProfileScreen
 import ui.reports.ReportsMainScreen
 import ui.reports.group.reportCase.ReportCaseScreen
+import ui.reports.reportForms.GenderBasedViolenceForm
 import ui.reports.reportForms.MinorAccident
 import ui.reports.typesOfReports.GenderBasedViolence
+import ui.splash.SplashRoute
+import ui.splash.SplashViewModel
+import ui.splash.SplashViewModelFactory
+import ui.welcoming.SwipablePagerScreen
+
+data class NavItem(
+    val label: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+)
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Allow content to draw behind the system bars
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        // Set transparent status bar for edge-to-edge
         window.statusBarColor = Color.Transparent.toArgb()
 
-        // Compose content
         setContent {
-            MalawiPoliceAppTheme { // Make sure you have your theme here
+            MalawiPoliceAppTheme {
+
                 val navController = rememberNavController()
-
-                // This will handle system bar colors for all screens
                 val systemUiController = rememberSystemUiController()
-                val useDarkIcons = !isSystemInDarkTheme()
-
-                val backgroundColor = MaterialTheme.colorScheme.background
 
                 SideEffect {
                     systemUiController.setStatusBarColor(
                         color = Color.Transparent,
-                        darkIcons = useDarkIcons
+                        darkIcons = true
                     )
                 }
 
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(backgroundColor) // theme-based background
+                        .background(White)
+                        .systemBarsPadding()
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = "report_case_screen"
+                        startDestination = "splash"
                     ) {
-                        composable("welcome") {
-                            SwipablePagerScreen(navController)
+
+                        composable("splash") {
+                            val factory = remember {
+                                SplashViewModelFactory(applicationContext)
+                            }
+
+                            val viewModel: SplashViewModel =
+                                androidx.lifecycle.viewmodel.compose.viewModel(
+                                    factory = factory
+                                )
+
+                            SplashRoute(
+                                viewModel = viewModel,
+                                onNavigateToLogin = {
+                                    navController.navigate("sign_in") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+                                },
+                                onNavigateToHome = {
+                                    navController.navigate("home_page") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
+                                }
+                            )
                         }
-                        composable("sign_up") {
-                            SignUp(navController)
-                        }
-                        composable("home_page") {
-                            HomePage(navController)
-                        }
-                        composable("gbv_report_details") {
-                            GenderBasedViolence(navController)
-                        }
-                        composable("gbv_report_form") {
-                            GenderBasedViolenceForm(navController)
-                        }
-                        composable("enter_phone_number") {
-                            PhoneNumberScreen(navController)
-                        }
-                        composable("otp_verification/{phone}") { backStackEntry ->
-                            val phone = backStackEntry.arguments?.getString("phone") ?: ""
+
+                        composable("welcome") { SwipablePagerScreen(navController) }
+                        composable("sign_up") { SignUp(navController) }
+                        composable("sign_in") { SignIn(navController) }
+                        composable("home_page") { HomePage(navController) }
+
+                        composable("gbv_report_details") { GenderBasedViolence(navController) }
+                        composable("gbv_report_form") { GenderBasedViolenceForm(navController) }
+                        composable("minor_accident") { MinorAccident(navController) }
+
+                        composable("enter_phone_number") { PhoneNumberScreen(navController) }
+                        composable("forgot_password") { ForgetPasswordScreen(navController) }
+
+                        composable("otp_verification/{phone}") {
+                            val phone = it.arguments?.getString("phone").orEmpty()
                             OtpVerificationScreen(navController, phone)
                         }
-                        composable("success_screen") {
-                            SuccessScreen(navController)
-                        }
 
-
-                        composable("kba_screen/{phone}") { backStackEntry ->
-                            val phone = backStackEntry.arguments?.getString("phone") ?: ""
-                            KBAScreen(navController, phone)
-                        }
-                        composable("reset_password/{phone}") { backStackEntry ->
-                            val phone = backStackEntry.arguments?.getString("phone") ?: ""
-                            ResetPasswordScreen(navController, phone)
-                        }
-
-
-                        composable("profile_screen") {
-                            UserProfileScreen(navController)
-                        }
-
-                        composable("sign_in") {
-                            SingIn(navController)
-                        }
-
-
-                        composable("forgot_password") {
-                            ForgetPasswordScreen(navController)
-                        }
-
-                        composable("password_otp_verification/{phone}") { backStackEntry ->
-                            val phone = backStackEntry.arguments?.getString("phone") ?: ""
+                        composable("password_otp_verification/{phone}") {
+                            val phone = it.arguments?.getString("phone").orEmpty()
                             PasswordOtpVerification(navController, phone)
                         }
 
-
-                        composable("report_main_screen") {
-                            ReportsMainScreen(navController)
-                        }
-                        composable("report_case_screen") {
-                            ReportCaseScreen(navController)
+                        composable("kba_screen/{phone}") {
+                            val phone = it.arguments?.getString("phone").orEmpty()
+                            KBAScreen(navController, phone)
                         }
 
-                        composable("minor_accident") {
-                            MinorAccident(navController)
+                        composable("reset_password/{phone}") {
+                            val phone = it.arguments?.getString("phone").orEmpty()
+                            ResetPasswordScreen(navController, phone)
                         }
 
+                        composable("success_screen") { SuccessScreen(navController) }
+                        composable("report_main_screen") { ReportsMainScreen(navController) }
+                        composable("report_case_screen") { ReportCaseScreen(navController) }
+                        composable("profile_screen") { UserProfileScreen(navController) }
+                        composable("current_news") { CurrentNews() }
                     }
                 }
             }
