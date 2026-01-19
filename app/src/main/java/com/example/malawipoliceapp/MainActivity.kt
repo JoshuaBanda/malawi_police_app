@@ -10,15 +10,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.malawipoliceapp.ui.theme.MalawiPoliceAppTheme
 import com.example.malawipoliceapp.ui.theme.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import ui.SuccessScreen
 import ui.authentication.*
+import ui.authentication.data.LoginViewModelFactory
+import ui.authentication.data.SignUpViewModel
+import ui.authentication.data.SignUpViewModelFactory
 import ui.homepage.HomePage
 import ui.news.CurrentNews
 import ui.profile.UserProfileScreen
@@ -64,6 +71,9 @@ class MainActivity : ComponentActivity() {
                         .background(White)
                         .systemBarsPadding()
                 ) {
+                    val signUpViewModel: SignUpViewModel = viewModel(
+                        factory = SignUpViewModelFactory(LocalContext.current)
+                    )
                     NavHost(
                         navController = navController,
                         startDestination = "splash"
@@ -95,20 +105,34 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("welcome") { SwipablePagerScreen(navController) }
-                        composable("sign_up") { SignUp(navController) }
+                        composable("sign_up") {
+                            SignUp(navController = navController, viewModel = signUpViewModel)
+                        }
+
+                        composable("phone_number") {
+                            PhoneNumberScreen(navController = navController, viewModel = signUpViewModel)
+                        }
                         composable("sign_in") { SignIn(navController) }
                         composable("home_page") { HomePage(navController) }
 
                         composable("gbv_report_details") { GenderBasedViolence(navController) }
                         composable("gbv_report_form") { GenderBasedViolenceForm(navController) }
                         composable("minor_accident") { MinorAccident(navController) }
-
-                        composable("enter_phone_number") { PhoneNumberScreen(navController) }
                         composable("forgot_password") { ForgetPasswordScreen(navController) }
 
-                        composable("otp_verification/{phone}") {
-                            val phone = it.arguments?.getString("phone").orEmpty()
-                            OtpVerificationScreen(navController, phone)
+
+                        composable(
+                            route = "otp_verification/{phone}",
+                            arguments = listOf(
+                                navArgument("phone") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val phone = backStackEntry.arguments?.getString("phone") ?: ""
+                            OtpVerificationScreen(
+                                navController,
+                                phoneNumber = phone,
+                                viewModel = signUpViewModel,
+                            )
                         }
 
                         composable("password_otp_verification/{phone}") {

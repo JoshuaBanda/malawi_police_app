@@ -1,6 +1,10 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package ui.authentication
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -21,44 +25,55 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.malawipoliceapp.ui.theme.Gray
-import com.example.malawipoliceapp.ui.theme.White
-import com.example.malawipoliceapp.ui.theme.mograFontFamily
-import com.example.malawipoliceapp.ui.theme.primaryColor
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.example.malawipoliceapp.ui.theme.*
+import ui.authentication.data.SignUpUiEvent
+import ui.authentication.data.SignUpViewModel
 
 @Composable
-fun SignUp(navController: NavController) {
-    // Input states
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+fun SignUp(
+    navController: NavController,
+    viewModel: SignUpViewModel
+) {
+    val credentials by viewModel.credentials.collectAsState()
+    val isFormValid by viewModel.isFormValid.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
-    // Error states
-    var firstNameError by remember { mutableStateOf(false) }
-    var lastNameError by remember { mutableStateOf(false) }
-    var passwordError by remember { mutableStateOf(false) }
-    var confirmPasswordError by remember { mutableStateOf(false) }
-
-    val isFormValid = remember(firstName, lastName, password, confirmPassword) {
-        firstName.isNotBlank() && lastName.isNotBlank() &&
-                password.isNotBlank() && confirmPassword.isNotBlank() &&
-                password.length >= 6 && password == confirmPassword
+    val systemUiController = rememberSystemUiController()
+    SideEffect {
+        systemUiController.setNavigationBarColor(
+            color = primaryColor,
+            darkIcons = false
+        )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                SignUpUiEvent.Success -> {
+                    navController.navigate("phone_number") {
+                        popUpTo("signup") { inclusive = true }
+                    }
+                }
+                is SignUpUiEvent.Error -> {
+                    // TODO: show snackbar if needed
+                }
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
         ) {
-            // Header
+
             Text(
                 text = "Create an Account",
                 fontFamily = mograFontFamily,
@@ -67,138 +82,72 @@ fun SignUp(navController: NavController) {
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.8f)
-                    .clip(RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp))
+                    .fillMaxHeight(0.85f)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                     .background(primaryColor)
                     .padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalArrangement = Arrangement.Center
             ) {
-                // First Name Field
+
+                // First name
                 OutlinedTextField(
-                    value = firstName,
-                    onValueChange = {
-                        firstName = it
-                        firstNameError = it.isBlank()
-                    },
-                    placeholder = {
-                        Text(
-                            "First Name",
-                            fontSize = 16.sp,
-                            color = Gray.copy(alpha = 0.7f)
-                        )
-                    },
+                    value = credentials.firstName,
+                    onValueChange = viewModel::handleFirstNameChanged,
+                    placeholder = { Text("First Name", color = Gray) },
                     singleLine = true,
-                    isError = firstNameError,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = White,
-                        unfocusedBorderColor = Gray.copy(alpha = 0.5f),
-                        errorBorderColor = Color.Red.copy(alpha = 0.5f),
-                        cursorColor = White,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
-                    )
+                    colors = textFieldColors()
                 )
-
-                if (firstNameError) {
-                    Text(
-                        text = "First name is required",
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Last Name Field
+                // Last name
                 OutlinedTextField(
-                    value = lastName,
-                    onValueChange = {
-                        lastName = it
-                        lastNameError = it.isBlank()
-                    },
-                    placeholder = {
-                        Text(
-                            "Last Name",
-                            fontSize = 16.sp,
-                            color = Gray.copy(alpha = 0.7f)
-                        )
-                    },
+                    value = credentials.lastName,
+                    onValueChange = viewModel::handleLastNameChanged,
+                    placeholder = { Text("Last Name", color = Gray) },
                     singleLine = true,
-                    isError = lastNameError,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = White,
-                        unfocusedBorderColor = Gray.copy(alpha = 0.5f),
-                        errorBorderColor = Color.Red.copy(alpha = 0.5f),
-                        cursorColor = White,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
-                    )
+                    colors = textFieldColors()
                 )
-
-                if (lastNameError) {
-                    Text(
-                        text = "Last name is required",
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Password Field
+                // Password
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = {
-                        password = it
-                        passwordError = it.isBlank() || it.length < 6
-                    },
-                    placeholder = {
-                        Text(
-                            "Password (min 6 characters)",
-                            fontSize = 16.sp,
-                            color = Gray.copy(alpha = 0.7f)
-                        )
-                    },
+                    value = credentials.password,
+                    onValueChange = viewModel::handlePasswordChanged,
+                    placeholder = { Text("Password (min 6 characters)", color = Gray) },
                     singleLine = true,
-                    isError = passwordError,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    visualTransformation = if (passwordVisible) {
-                        VisualTransformation.None
-                    } else {
-                        PasswordVisualTransformation()
-                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation =
+                        if (passwordVisible) VisualTransformation.None
+                        else PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        IconButton(
+                            onClick = { passwordVisible = !passwordVisible },
+                            enabled = credentials.password.isNotEmpty()
+                        ) {
                             Icon(
-                                imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                imageVector =
+                                    if (passwordVisible) Icons.Default.Visibility
+                                    else Icons.Default.VisibilityOff,
+                                contentDescription =
+                                    if (passwordVisible) "Hide password"
+                                    else "Show password",
                                 tint = Gray
                             )
                         }
@@ -207,57 +156,33 @@ fun SignUp(navController: NavController) {
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Next
                     ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = White,
-                        unfocusedBorderColor = Gray.copy(alpha = 0.5f),
-                        errorBorderColor = Color.Red.copy(alpha = 0.5f),
-                        cursorColor = White,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
-                    )
+                    colors = textFieldColors()
                 )
-
-                if (passwordError) {
-                    Text(
-                        text = "Password must be at least 6 characters",
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Confirm Password Field
+                // Confirm password
                 OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = {
-                        confirmPassword = it
-                        confirmPasswordError = it != password
-                    },
-                    placeholder = {
-                        Text(
-                            "Confirm Password",
-                            fontSize = 16.sp,
-                            color = Gray.copy(alpha = 0.7f)
-                        )
-                    },
+                    value = credentials.confirmPassword,
+                    onValueChange = viewModel::handleConfirmPasswordChanged,
+                    placeholder = { Text("Confirm Password", color = Gray) },
                     singleLine = true,
-                    isError = confirmPasswordError,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    visualTransformation = if (confirmPasswordVisible) {
-                        VisualTransformation.None
-                    } else {
-                        PasswordVisualTransformation()
-                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation =
+                        if (confirmPasswordVisible) VisualTransformation.None
+                        else PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        IconButton(
+                            onClick = { confirmPasswordVisible = !confirmPasswordVisible },
+                            enabled = credentials.confirmPassword.isNotEmpty()
+                        ) {
                             Icon(
-                                imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password",
+                                imageVector =
+                                    if (confirmPasswordVisible) Icons.Default.Visibility
+                                    else Icons.Default.VisibilityOff,
+                                contentDescription =
+                                    if (confirmPasswordVisible) "Hide password"
+                                    else "Show password",
                                 tint = Gray
                             )
                         }
@@ -266,72 +191,65 @@ fun SignUp(navController: NavController) {
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = White,
-                        unfocusedBorderColor = Gray.copy(alpha = 0.5f),
-                        errorBorderColor = Color.Red.copy(alpha = 0.5f),
-                        cursorColor = White,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
-                    )
+                    colors = textFieldColors()
                 )
-
-                if (confirmPasswordError) {
-                    Text(
-                        text = "Passwords do not match",
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Sign Up Button
+                // Sign up button
                 Button(
-                    onClick = {
-                        if (isFormValid) {
-                            navController.navigate("enter_phone_number")
-                        }
-                    },
+                    onClick = { navController.navigate("phone_number") },
+                    enabled = isFormValid && !uiState.isLoading,
                     modifier = Modifier
-                        .fillMaxWidth(0.8f)
+                        .fillMaxWidth(0.85f)
                         .height(56.dp)
-                        .alpha(if (isFormValid) 1f else 0.9f),
+                        .align(Alignment.CenterHorizontally)
+                        .alpha(if (isFormValid) 1f else 0.6f),
                     shape = RoundedCornerShape(12.dp),
-                    enabled = isFormValid,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isFormValid) White else White.copy(alpha = 0.5f),
-                        contentColor = if (isFormValid) primaryColor else primaryColor.copy(alpha = 0.5f),
-                        disabledContainerColor = White.copy(alpha = 0.5f),
-                        disabledContentColor = primaryColor.copy(alpha = 0.5f)
+                        containerColor = White,
+                        contentColor = primaryColor
                     )
                 ) {
-                    Text(
-                        text = "Sign Up",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = primaryColor
+                        )
+                    } else {
+                        Text("Sign Up", fontWeight = FontWeight.SemiBold)
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                // Sign in option
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Already have an account? Sign In",
-                        color = White.copy(alpha = 0.8f),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-//                        modifier = Modifier.clickable {
-//                            navController.navigate("signin")
-//                        }
-                    )
-                }
+                Text(
+                    text = "Already have an account? Sign In",
+                    color = White.copy(alpha = 0.8f),
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        navController.navigate("sign_in")
+                    }
+                )
             }
         }
     }
 }
+
+/* ---------- Reusable TextField Colors ---------- */
+
+@Composable
+private fun textFieldColors() =
+    OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = White,
+        unfocusedBorderColor = Gray.copy(alpha = 0.5f),
+        cursorColor = White,
+        focusedTextColor = White,
+        unfocusedTextColor = White
+    )

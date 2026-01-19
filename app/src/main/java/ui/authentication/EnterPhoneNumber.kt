@@ -5,6 +5,8 @@ package ui.authentication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,24 +17,52 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.example.malawipoliceapp.ui.theme.primaryColor
 import com.example.malawipoliceapp.ui.theme.Gray
 import com.example.malawipoliceapp.ui.theme.White
-import com.example.malawipoliceapp.ui.theme.MalawiPoliceAppTheme
+import ui.authentication.data.SignUpViewModel
 
 @Composable
 fun PhoneNumberScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: SignUpViewModel
 ) {
-    var phoneNumber by remember { mutableStateOf("") }
-    var phoneError by remember { mutableStateOf(false) }
+    /* ---------------- System UI ---------------- */
 
-    // Validate phone number
-    val isPhoneValid = phoneNumber.length <=10 && phoneNumber.all { it.isDigit() }
+    val systemUiController = rememberSystemUiController()
+
+    SideEffect {
+        systemUiController.setStatusBarColor(
+            color = primaryColor,
+            darkIcons = false
+        )
+    }
+
+    /* ---------------- State ---------------- */
+
+    val credentials by viewModel.credentials.collectAsStateWithLifecycle()
+    val otpState by viewModel.otpState.collectAsStateWithLifecycle()
+
+    // Malawi local number: 9 digits (prefix handled separately as +265)
+    val isPhoneValid =
+        credentials.phoneNumber.length == 9 &&
+                credentials.phoneNumber.all(Char::isDigit) &&
+                (credentials.phoneNumber.startsWith("8") ||
+                        credentials.phoneNumber.startsWith("9"))
+
+    val phoneError =
+        credentials.phoneNumber.isNotEmpty() && !isPhoneValid
+
+    /* ---------------- Navigation after OTP ---------------- */
+
+    LaunchedEffect(otpState.errorMessage) {
+        // You can handle OTP errors here if needed
+    }
+
+    /* ---------------- UI ---------------- */
 
     Column(
         modifier = Modifier
@@ -44,7 +74,6 @@ fun PhoneNumberScreen(
 
         Spacer(modifier = Modifier.height(100.dp))
 
-        // Title
         Text(
             text = "What's your phone number",
             color = White,
@@ -54,28 +83,26 @@ fun PhoneNumberScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Phone input field
         OutlinedTextField(
-            value = phoneNumber,
-            onValueChange = {
-                if (it.all(Char::isDigit) && it.length <= 10) {
-                    phoneNumber = it
-                    phoneError = false
-                } else if (it.isNotEmpty()) {
-                    phoneError = true
+            value = credentials.phoneNumber,
+            onValueChange = { newValue ->
+                if (newValue.length <= 9 && newValue.all(Char::isDigit)) {
+                    viewModel.handlePhoneChanged(newValue)
                 }
             },
+//            label = {
+//                Text("Phone number")
+//            },
             placeholder = {
                 Text(
-                    "Enter phone number",
-                    color = Gray.copy(alpha = 0.7f),
-                    fontSize = 16.sp
+                    text = "991234567",
+                    color = Gray.copy(alpha = 0.7f)
                 )
             },
             prefix = {
                 Text(
                     text = "+265 | ",
-                    color = if (phoneError) Color.Red else Color.White
+                    color = if (phoneError) Color.Red.copy(0.5f) else Color.White
                 )
             },
             singleLine = true,
@@ -88,21 +115,29 @@ fun PhoneNumberScreen(
                 keyboardType = KeyboardType.Phone,
                 imeAction = ImeAction.Done
             ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    if (isPhoneValid && !otpState.isLoading) {
+                        viewModel.requestOtp()
+                        navController.navigate(
+                            "otp_verification/${credentials.phoneNumber}"
+                        )
+                    }
+                }
+            ),
             colors = OutlinedTextFieldDefaults.colors(
-
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
                 focusedBorderColor = Color.White,
                 unfocusedBorderColor = Gray.copy(alpha = 0.5f),
-                errorBorderColor = Color.Red.copy(alpha = 0.5f),
+                errorBorderColor = Color.Red,
                 cursorColor = Color.White
             )
         )
 
-        // Error message
         if (phoneError) {
             Text(
-                text = "Phone number must be 10 digits",
+                text = "Phone number must be 9 or 8 digits",
                 color = Color.Red,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(top = 8.dp)
@@ -111,25 +146,24 @@ fun PhoneNumberScreen(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Info text
         Text(
-            text = "We will send you an SMS to verify if it's really you",
+            text = "We will send you an SMS to verify your phone number",
             color = White,
             fontSize = 14.sp,
-            modifier = Modifier.padding(horizontal = 10.dp),
-            lineHeight = 18.sp
+            lineHeight = 18.sp,
+            modifier = Modifier.padding(horizontal = 10.dp)
         )
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Continue Button
         Button(
             onClick = {
-                if (isPhoneValid) {
-                    navController.navigate("otp_verification/$phoneNumber")
-                }
+                viewModel.requestOtp()
+                navController.navigate(
+                    "otp_verification/${credentials.phoneNumber}"
+                )
             },
-            enabled = isPhoneValid,
+            enabled = isPhoneValid && !otpState.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -141,34 +175,29 @@ fun PhoneNumberScreen(
                 disabledContentColor = primaryColor.copy(alpha = 0.5f)
             )
         ) {
-            Text(
-                text = "Sign Up",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+            if (otpState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(22.dp),
+                    strokeWidth = 2.dp,
+                    color = primaryColor
+                )
+            } else {
+                Text(
+                    text = "Continue",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Length indicator
-        if (phoneNumber.isNotEmpty()) {
+        if (credentials.phoneNumber.isNotEmpty()) {
             Text(
-                text = "${phoneNumber.length}/10",
+                text = "${credentials.phoneNumber.length}/9",
                 color = White.copy(alpha = 0.7f),
                 fontSize = 12.sp
             )
         }
     }
 }
-
-//////////////////////////////////////////////////
-// PREVIEW
-//////////////////////////////////////////////////
-
-//@Preview(showBackground = true, showSystemUi = true)
-//@Composable
-//fun PhoneNumberScreenPreview() {
-//    MalawiPoliceAppTheme {
-//        PhoneNumberScreen(navController = rememberNavController())
-//    }
-//}

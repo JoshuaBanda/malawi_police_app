@@ -1,13 +1,11 @@
-package ui.authentication
+package ui.authentication.data
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ui.authentication.data.AuthApi
 
 object RetrofitProvider {
 
-
-    private const val BASE_URL = "https://api.yourbackend.com/"
+    private const val BASE_URL = "http://172.18.0.181:3000/"
 
     val authApi: AuthApi by lazy {
         Retrofit.Builder()

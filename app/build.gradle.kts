@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.protobuf)
+
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -84,6 +87,9 @@ dependencies {
     implementation(libs.androidx.datastore.proto)
     implementation(libs.protobuf.javalite)
 
+    implementation("com.google.dagger:hilt-android:2.57.1")
+    ksp("com.google.dagger:hilt-android-compiler:2.57.1")
+
 
 }
 protobuf {
@@ -100,4 +106,3 @@ protobuf {
         }
     }
 }
-

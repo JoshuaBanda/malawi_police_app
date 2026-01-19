@@ -1,23 +1,21 @@
-package ui.splash
+package ui.authentication.data
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import ui.authentication.data.RetrofitProvider
-import ui.authentication.data.AuthRepository
 
-class SplashViewModelFactory(
+class SignUpViewModelFactory(
     private val context: Context
 ) : ViewModelProvider.Factory {
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(SplashViewModel::class.java)) {
-            val repo = AuthRepository(
-                context = context,
+        if (modelClass.isAssignableFrom(SignUpViewModel::class.java)) {
+            val repository = AuthRepository(
+                context = context.applicationContext,
                 api = RetrofitProvider.authApi
             )
-            @Suppress("UNCHECKED_CAST")
-            return SplashViewModel(repo) as T
+            return SignUpViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
