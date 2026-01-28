@@ -2,12 +2,16 @@ package ui.authentication.data
 
 import android.content.Context
 import com.example.malawipoliceapp.UserSession
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ui.UserState
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AuthRepository(
-    private val context: Context,
+@Singleton
+class AuthRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val api: AuthApi
 ) {
 
@@ -54,9 +58,6 @@ class AuthRepository(
         )
     }
 
-    /**
-     * Registration does NOT log the user in
-     */
     suspend fun register(
         firstName: String,
         lastName: String,
@@ -99,11 +100,6 @@ class AuthRepository(
             ?: throw IllegalStateException("Empty OTP response")
     }
 
-    suspend fun logout() {
-        dataStore.updateData {
-            UserSession.getDefaultInstance()
-        }
-    }
     suspend fun verifyOtp(phone: String, otp: String) {
         val request = VerifyOtpRequest(phoneNumber = phone, otp = otp)
 
@@ -121,8 +117,11 @@ class AuthRepository(
         if (!body.success) {
             throw IllegalStateException(body.message)
         }
+    }
 
-        // Optionally, store a flag in DataStore or token if needed
-        // e.g. _uiState.value = _uiState.value.copy(isVerified = true)
+    suspend fun logout() {
+        dataStore.updateData {
+            UserSession.getDefaultInstance()
+        }
     }
 }

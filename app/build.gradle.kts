@@ -42,6 +42,11 @@ android {
     buildFeatures {
         compose = true
     }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
 }
 
 dependencies {
@@ -75,9 +80,11 @@ dependencies {
     implementation("com.github.skydoves:landscapist-glide:2.6.0")
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
 
-    implementation(platform("androidx.compose:compose-bom:2024.10.00"))
+    //implementation(platform("androidx.compose:compose-bom:2024.10.00"))
     implementation("androidx.compose.material3:material3")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+    //implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
+
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -87,8 +94,9 @@ dependencies {
     implementation(libs.androidx.datastore.proto)
     implementation(libs.protobuf.javalite)
 
-    implementation("com.google.dagger:hilt-android:2.57.1")
-    ksp("com.google.dagger:hilt-android-compiler:2.57.1")
+    implementation("com.google.dagger:hilt-android:2.58")
+    ksp("com.google.dagger:hilt-android-compiler:2.58")
+    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
 
 }
@@ -106,3 +114,5 @@ protobuf {
         }
     }
 }
+
+

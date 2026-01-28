@@ -3,6 +3,8 @@ package ui.authentication.data
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -33,7 +35,7 @@ data class OtpRequest(
     val phoneNumber: String
 )
 
-data class OtpResponse(
+data class Otp  (
     val message: String
 )
 
@@ -42,6 +44,9 @@ data class VerifyOtpRequest(
     val otp: String
 )
 
+data class OtpResponse(
+    val message: String
+)
 data class VerifyOtpResponse(
     val message: String,
     val success: Boolean
@@ -50,7 +55,8 @@ data class VerifyOtpResponse(
 private const val OTP_LENGTH = 6
 private const val RESEND_TIMEOUT = 30 // seconds
 
-class SignUpViewModel(
+@HiltViewModel
+class SignUpViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
 

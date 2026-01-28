@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -35,7 +36,7 @@ import ui.authentication.data.SignUpViewModel
 @Composable
 fun SignUp(
     navController: NavController,
-    viewModel: SignUpViewModel
+    viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val credentials by viewModel.credentials.collectAsState()
     val isFormValid by viewModel.isFormValid.collectAsState()

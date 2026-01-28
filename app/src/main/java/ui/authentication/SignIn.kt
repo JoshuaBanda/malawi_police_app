@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.malawipoliceapp.ui.theme.Gray
@@ -35,13 +36,13 @@ import ui.authentication.data.LoginUiEvent
 import ui.authentication.data.LoginViewModel
 import ui.authentication.data.LoginViewModelFactory
 
+
+
 @Composable
 fun SignIn(
     navController: NavController,
 ) {
-    val viewModel: LoginViewModel = viewModel(
-        factory = LoginViewModelFactory(LocalContext.current)
-    )
+    val viewModel: LoginViewModel = hiltViewModel()
 
     val systemUiController = rememberSystemUiController()
     val snackbarHostState = remember { SnackbarHostState() }

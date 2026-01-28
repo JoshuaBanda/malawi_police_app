@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ui.UserState
 import android.util.Log
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 
 data class LoginUiState(
     val isLoading: Boolean = false,
@@ -34,7 +36,8 @@ data class LoginCredentials(
 )
 
 
-class LoginViewModel(
+@HiltViewModel
+class LoginViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
 
